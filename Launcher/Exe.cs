@@ -1,4 +1,6 @@
-﻿namespace Launcher
+﻿using System.IO;
+
+namespace Launcher
 {
     public partial class MainWindow
     {
@@ -6,10 +8,16 @@
         {
             public string Display;
             public string Path;
-            public Exe(string display, string path)
+            public string SimplePath;
+            public DirectoryInfo Dir;
+            public DirectoryInfo ProjectDir;
+            public Exe(FileInfo exe)
             {
-                Display = display;
-                Path = path;
+                Display = string.Format("{0} - {1}", exe.Name, exe.Directory.Name);
+                Path = exe.FullName;
+                SimplePath = exe.Directory.Name+"\\"+exe.Name;
+                Dir = exe.Directory;
+                ProjectDir = exe.Directory.Parent.Parent.Parent;
             }
         }
     }
