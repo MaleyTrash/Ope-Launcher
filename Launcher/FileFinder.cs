@@ -25,7 +25,7 @@ namespace Launcher
                 }
                 foreach (FileInfo file in info.GetFiles("*.sln", SearchOption.AllDirectories))
                 {
-                    DirectoryInfo binDir = new DirectoryInfo(file.Directory.FullName + "\\" + System.IO.Path.GetFileNameWithoutExtension(file.Name) + "\\bin");
+                    DirectoryInfo binDir = new DirectoryInfo(file.Directory.FullName + "\\" + Path.GetFileNameWithoutExtension(file.Name) + "\\bin");
                     if (!binDir.Exists) continue;
                     foreach (FileInfo exe in binDir.GetFiles("*.exe", SearchOption.AllDirectories))
                     {
@@ -37,16 +37,40 @@ namespace Launcher
             public static List<Project> GetPaths()
             {
                 FileHelperEngine<Project> engine = new FileHelperEngine<Project>();
-                if (!File.Exists(_dirDataFile)) File.Create(_dirDataFile);
+                if (!File.Exists(_dirDataFile)) File.Create(_dirDataFile).Dispose();
                 return engine.ReadFileAsList(_dirDataFile);
             }
 
             public static ExeInfo GetExeInfo(Exe target)
             {
+                string file = target.ProjectDir.FullName + "\\" + _exeInfoFile;
                 FileHelperEngine<ExeInfo> engine = new FileHelperEngine<ExeInfo>();
-                if (!File.Exists(target.ProjectDir.FullName + "\\" + _exeInfoFile)) File.Create(_dirDataFile);
-                List<ExeInfo> infos =  engine.ReadFileAsList(target.ProjectDir.FullName+"\\"+_exeInfoFile);
-                infos.Where(i => i.path.Equals(target.Path));
+                if (!File.Exists(file)) File.Create(file).Dispose();
+                List<ExeInfo> infos =  engine.ReadFileAsList(file);
+                ExeInfo ret = infos.Where(i => i.path.Equals(target.SimplePath)).FirstOrDefault();
+                if(ret == null)
+                {
+                    return new ExeInfo();
+                }
+                return ret;
+            }
+
+            public static void SetExeInfo(Exe target,  ExeInfo info)
+            {
+                string file = target.ProjectDir.FullName + "\\" + _exeInfoFile;
+                FileHelperEngine<ExeInfo> engine = new FileHelperEngine<ExeInfo>();
+                if (!File.Exists(file)) File.Create(_dirDataFile).Dispose();
+                List<ExeInfo> infos = engine.ReadFileAsList(file);
+                ExeInfo curr = infos.Where(i => i.path.Equals(target.SimplePath)).FirstOrDefault();
+                if (curr == null)
+                {
+                    infos.Add(info);
+                }
+                else
+                {
+                    infos[infos.IndexOf(curr)] = info;
+                }
+                engine.WriteFile(file, infos);
             }
         }
     }
