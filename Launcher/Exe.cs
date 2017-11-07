@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Launcher
 {
@@ -6,6 +7,8 @@ namespace Launcher
     {
         class Exe
         {
+            private static int c = 1;
+
             public string Display;
             public string Path;
             public string SimplePath;
@@ -13,11 +16,17 @@ namespace Launcher
             public DirectoryInfo ProjectDir;
             public Exe(FileInfo exe)
             {
-                Display = string.Format("{0} - {1}", exe.Name, exe.Directory.Name);
                 Path = exe.FullName;
                 SimplePath = exe.Directory.Name+"\\"+exe.Name;
                 Dir = exe.Directory;
                 ProjectDir = exe.Directory.Parent.Parent.Parent;
+                Display = string.Format("{0}. {1}\\{2} - {3}", c,ProjectDir.Name, exe.Name, exe.Directory.Name);
+                c++;
+            }
+
+            public static void ResetCounter()
+            {
+                c = 1;
             }
         }
     }

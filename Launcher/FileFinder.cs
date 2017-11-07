@@ -15,6 +15,7 @@ namespace Launcher
             private static string _exeInfoFile = "info.txt";
             public static List<Exe> GetExes(Project project) 
             {
+                Exe.ResetCounter();
                 List<Exe> ret = new List<Exe>();
                     
                 DirectoryInfo info = new DirectoryInfo(project.directory);
@@ -39,6 +40,22 @@ namespace Launcher
                 FileHelperEngine<Project> engine = new FileHelperEngine<Project>();
                 if (!File.Exists(_dirDataFile)) File.Create(_dirDataFile).Dispose();
                 return engine.ReadFileAsList(_dirDataFile);
+            }
+
+            public static void NewPath(Project target)
+            {
+                FileHelperEngine<Project> engine = new FileHelperEngine<Project>();
+                if (!File.Exists(_dirDataFile)) File.Create(_dirDataFile).Dispose();
+                engine.AppendToFile(_dirDataFile, target);
+            }
+
+            public static void RemovePath(Project target)
+            {
+                FileHelperEngine<Project> engine = new FileHelperEngine<Project>();
+                if (!File.Exists(_dirDataFile)) File.Create(_dirDataFile).Dispose();
+                List<Project> projects = engine.ReadFileAsList(_dirDataFile);
+                projects.RemoveAll(i => i.directory.Equals(target.directory));
+                engine.WriteFile(_dirDataFile, projects);
             }
 
             public static ExeInfo GetExeInfo(Exe target)
