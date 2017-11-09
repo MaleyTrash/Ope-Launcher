@@ -1,17 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.Win32;
@@ -47,7 +39,7 @@ namespace Launcher
             Project proj;
             try
             {
-                proj = new Project() { directory=(string)PathList.SelectedItems[0] };
+                proj = new Project() { directory = (string)PathList.SelectedItems[0] };
             }
             catch
             {
@@ -99,31 +91,32 @@ namespace Launcher
             string title = "";
             string description = "";
 
-            if(Banner.Source != null)
+            if (Banner.Source != null)
             {
-                img = ImageToBase64((BitmapSource)Banner.Source);
+                img = Base64.ImageToBase64((BitmapSource)Banner.Source);
             }
-            if(Title.Text.Length > 0)
+            if (Title.Text.Length > 0)
             {
                 title = Title.Text;
             }
-            if(Description.Text.Length > 0)
+            if (Description.Text.Length > 0)
             {
                 description = Description.Text;
             }
-            FileFinder.SetExeInfo(target,new ExeInfo(target.SimplePath,title,description,img));
+            FileFinder.SetExeInfo(target, new ExeInfo(target.SimplePath, title, description, img));
         }
 
         public void NewLocation_Click(object sender, RoutedEventArgs e)
         {
             using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
             {
+                dialog.Description = "Vyberte složku s projekty";
                 System.Windows.Forms.DialogResult result = dialog.ShowDialog();
-                if(result.Equals(System.Windows.Forms.DialogResult.OK))
+                if (result.Equals(System.Windows.Forms.DialogResult.OK))
                 {
-                    if(!dialog.SelectedPath.Equals(string.Empty))
+                    if (!dialog.SelectedPath.Equals(string.Empty))
                     {
-                        FileFinder.NewPath(new Project() {directory=dialog.SelectedPath});
+                        FileFinder.NewPath(new Project() { directory = dialog.SelectedPath });
                         paths.Add(dialog.SelectedPath);
                     }
                 }
@@ -149,14 +142,59 @@ namespace Launcher
         {
             Exe target = GetSelected();
             if (target == null) return;
-            //Now Create all of the directories
-            foreach (string dirPath in Directory.GetDirectories(target.ProjectDir.FullName, "*",
-                SearchOption.AllDirectories))
-                Directory.CreateDirectory(dirPath.Replace(target.ProjectDir.FullName, DestinationPath));
-            //Copy all the files & Replaces any files with the same name
-            foreach (string newPath in Directory.GetFiles(target.ProjectDir.FullName, "*.*",
-                SearchOption.AllDirectories))
-                File.Copy(newPath, newPath.Replace(target.ProjectDir.FullName, DestinationPath), true);
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                dialog.Description = "Vyberte cílovou složku";
+                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                if (result.Equals(System.Windows.Forms.DialogResult.OK))
+                {
+                    if (!dialog.SelectedPath.Equals(string.Empty))
+                    {
+                        try
+                        {
+                            string SourceDir = target.ProjectDir.FullName;
+                            string TargetDir = dialog.SelectedPath + "\\" + target.ProjectDir.Name;
+                            if (Directory.Exists(TargetDir))
+                            {
+                                MessageBoxResult res = MessageBox.Show(string.Format("Složka {0} v cíli již existuje. Chcete jí přepsat?", target.ProjectDir.Name), "Upozornění", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+                                if (res == MessageBoxResult.No) return;
+                            }
+                            //Now Create all of the directories
+                            foreach (string dirPath in Directory.GetDirectories(SourceDir, "*", SearchOption.AllDirectories))
+                            {
+                                Directory.CreateDirectory(dirPath.Replace(SourceDir, TargetDir));
+                            }
+                            //Copy all the files & Replaces any files with the same name
+                            foreach (string newPath in Directory.GetFiles(SourceDir, "*.*", SearchOption.AllDirectories))
+                            {
+                                File.Copy(newPath, newPath.Replace(SourceDir, TargetDir), true);
+                            }
+                            return;
+                        }
+                        catch
+                        {
+                            MessageBox.Show("Chyba při přesování projektu!", "Chyba!", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void SelectChanged(object sender, RoutedEventArgs e)
+        {
+            Exe target = GetSelected();
+            if (target == null) return;
+            ExeInfo info = FileFinder.GetExeInfo(target);
+            if (info.banner.Length > 0)
+            {
+                Banner.Source = Base64.StringToBitmap(info.banner);
+            }
+            else
+            {
+                Banner.Source = null;
+            }
+            Title.Text = info.title;
+            Description.Text = info.description;
         }
 
         private Exe GetSelected()
@@ -171,46 +209,6 @@ namespace Launcher
             catch
             {
                 return null;
-            }
-        }
-
-        private void SelectChanged(object sender, RoutedEventArgs e)
-        {
-            Exe target = GetSelected();
-            if (target == null) return;
-            ExeInfo info = FileFinder.GetExeInfo(target);
-            if (info.banner.Length > 0)
-            {
-                Banner.Source = Base64StringToBitmap(info.banner);
-            }
-            else
-            {
-                Banner.Source = null;
-            }
-            Title.Text = info.title;
-            Description.Text = info.description;
-        }
-
-        public static BitmapSource Base64StringToBitmap(string b64string)
-        {
-            var bytes = Convert.FromBase64String(b64string);
-
-            using (var stream = new MemoryStream(bytes))
-            {
-                return BitmapFrame.Create(stream,
-                    BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-            }
-        }
-
-        public static string ImageToBase64(BitmapSource bitmap)
-        {
-            var encoder = new PngBitmapEncoder();
-            var frame = BitmapFrame.Create(bitmap);
-            encoder.Frames.Add(frame);
-            using (var stream = new MemoryStream())
-            {
-                encoder.Save(stream);
-                return Convert.ToBase64String(stream.ToArray());
             }
         }
     }

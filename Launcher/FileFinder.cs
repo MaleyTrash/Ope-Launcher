@@ -13,28 +13,6 @@ namespace Launcher
         {
             private static string _dirDataFile = "data.txt";
             private static string _exeInfoFile = "info.txt";
-            public static List<Exe> GetExes(Project project) 
-            {
-                Exe.ResetCounter();
-                List<Exe> ret = new List<Exe>();
-                    
-                DirectoryInfo info = new DirectoryInfo(project.directory);
-                if (!info.Exists)
-                {
-                    MessageBox.Show(String.Format("Složka {0} nenalezena!", project.directory), "Chyba!", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return ret;
-                }
-                foreach (FileInfo file in info.GetFiles("*.sln", SearchOption.AllDirectories))
-                {
-                    DirectoryInfo binDir = new DirectoryInfo(file.Directory.FullName + "\\" + Path.GetFileNameWithoutExtension(file.Name) + "\\bin");
-                    if (!binDir.Exists) continue;
-                    foreach (FileInfo exe in binDir.GetFiles("*.exe", SearchOption.AllDirectories))
-                    {
-                        ret.Add(new Exe(exe));
-                    }
-                }
-                return ret;
-            }
             public static List<Project> GetPaths()
             {
                 FileHelperEngine<Project> engine = new FileHelperEngine<Project>();
@@ -88,6 +66,29 @@ namespace Launcher
                     infos[infos.IndexOf(curr)] = info;
                 }
                 engine.WriteFile(file, infos);
+            }
+
+            public static List<Exe> GetExes(Project project)
+            {
+                Exe.ResetCounter();
+                List<Exe> ret = new List<Exe>();
+
+                DirectoryInfo info = new DirectoryInfo(project.directory);
+                if (!info.Exists)
+                {
+                    MessageBox.Show(String.Format("Složka {0} nenalezena!", project.directory), "Chyba!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return ret;
+                }
+                foreach (FileInfo file in info.GetFiles("*.sln", SearchOption.AllDirectories))
+                {
+                    DirectoryInfo binDir = new DirectoryInfo(file.Directory.FullName + "\\" + Path.GetFileNameWithoutExtension(file.Name) + "\\bin");
+                    if (!binDir.Exists) continue;
+                    foreach (FileInfo exe in binDir.GetFiles("*.exe", SearchOption.AllDirectories))
+                    {
+                        ret.Add(new Exe(exe));
+                    }
+                }
+                return ret;
             }
         }
     }
