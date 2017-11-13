@@ -12,17 +12,18 @@
         TextOptions.TextFormattingMode="Ideal" 
         TextOptions.TextRenderingMode="Auto"        
         Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}" Title="LauncherV7" Width="648.597">
+        FontFamily="{DynamicResource MaterialDesignFont}" Title="LauncherV7" Width="848.435">
     <Grid Margin="0,0,-4,-3">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="6*"/>
-            <ColumnDefinition Width="6*"/>
+            <ColumnDefinition Width="22*"/>
+            <ColumnDefinition Width="52"/>
+            <ColumnDefinition Width="25*"/>
         </Grid.ColumnDefinitions>
-        <Grid>
+        <Grid Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="2*" />
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="5*"/>
+                <RowDefinition Height="3*" />
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="6*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
 
@@ -35,14 +36,18 @@
                 </ListView.View>
             </ListView>
             <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Content="Přidat" Grid.Column="0" Margin="3" Click="NewLocation_Click"/>
-                <Button Content="Odebrat" Grid.Column="1" Margin="3" Click="RemoveLocation_Click"/>
-                <Button Content="Kopírovat" Grid.Column="2" Margin="3" Click="CopyToLocation_Click"/>
+                <Button Content="Přidat složku" Grid.Column="0" Margin="3" Click="NewLocation_Click"/>
+                <Button Content="Odebrat složku" Grid.Column="1" Margin="3" Click="RemoveLocation_Click"/>
+                <Button Content="Kopírovat projekt" Grid.Row="1" Grid.Column="0" Margin="3" Click="CopyToLocation_Click"/>
+                <Button Content="Vymazat projekt" Grid.Row="1" Grid.Column="1" Margin="3" Click="Delete_Click"/>
             </Grid>
 
             <ListView x:Name="List" Grid.Row="2"  Grid.ColumnSpan="6">
@@ -53,7 +58,7 @@
                 </ListView.View>
             </ListView>
         </Grid>
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="5*"/>
@@ -89,6 +94,6 @@
                 <Button Content="Spustit" Grid.Column="2" Margin="3" Click="Launch_Click"/>
             </Grid>
         </Grid>
-        
+
     </Grid>
 </Window>

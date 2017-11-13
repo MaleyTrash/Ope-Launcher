@@ -180,6 +180,17 @@ namespace Launcher
             }
         }
 
+        public void Delete_Click(object seSnder, RoutedEventArgs e)
+        {
+            Exe target = GetSelected();
+            if (target == null) return;
+            MessageBoxResult res = MessageBox.Show(string.Format("Opravdu chcete smazat projekt v {0}?", target.ProjectDir.FullName), "Upozornění", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+            if (res == MessageBoxResult.No) return;
+            //Delet
+            target.ProjectDir.Delete(true);
+            return;
+        }
+
         private void SelectChanged(object sender, RoutedEventArgs e)
         {
             Exe target = GetSelected();
