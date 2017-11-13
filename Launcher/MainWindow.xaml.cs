@@ -156,7 +156,7 @@ namespace Launcher
                             string TargetDir = dialog.SelectedPath + "\\" + target.ProjectDir.Name;
                             if (Directory.Exists(TargetDir))
                             {
-                                MessageBoxResult res = MessageBox.Show(string.Format("Složka {0} v cíli již existuje. Chcete jí přepsat?", target.ProjectDir.Name), "Upozornění", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+                                MessageBoxResult res = MessageBox.Show(string.Format("Složka {0} v cíli již existuje. Chcete jí přepsat?", target.ProjectDir.Name), "Upozornění", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No);
                                 if (res == MessageBoxResult.No) return;
                             }
                             //Now Create all of the directories
@@ -184,10 +184,17 @@ namespace Launcher
         {
             Exe target = GetSelected();
             if (target == null) return;
-            MessageBoxResult res = MessageBox.Show(string.Format("Opravdu chcete smazat projekt v {0}?", target.ProjectDir.FullName), "Upozornění", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+            MessageBoxResult res = MessageBox.Show(string.Format("Opravdu chcete smazat projekt v {0}?", target.ProjectDir.FullName), "Upozornění", MessageBoxButton.YesNo, MessageBoxImage.Exclamation, MessageBoxResult.No);
             if (res == MessageBoxResult.No) return;
             //Delet
-            target.ProjectDir.Delete(true);
+            try
+            {
+                target.ProjectDir.Delete(true);
+            }
+            catch
+            {
+                MessageBox.Show("Chyba při mazání projektu!", "Chyba!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
             return;
         }
 
